@@ -1,0 +1,8 @@
+- convergence of dsy slows down near the boundary
+    - be quantitative about it (fitting)
+    - superconv -> (crossover?) -> power 1~2?
+- asymptotics of the growths of the derivatives
+    - confirm Luque or disprove
+- (next step) dissipative standard map
+
+- crossover as you go from one asymptotic behavior to another in renormalization
