@@ -301,7 +301,7 @@ int main(int argc, char** argv){
       ddw = (d2_lambda-r2*d_omega_lambda*dw-d2_omega*dw)/d1_omega;
       //print the result
       printf("%d   ", currN);
-      printf("%d   ", lambda_index); lambdaindex++;
+      printf("%d   ", lambda_index); lambda_index++;
       PRINT(omega); printf("%s ", buf);
       PRINT(lambda); printf("%s ", buf);
       PRINT(lambda_critical-lambda); printf("%s ", buf);
