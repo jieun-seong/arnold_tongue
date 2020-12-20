@@ -272,8 +272,7 @@ int main(int argc, char** argv){
     d2_omega_array = calloc(sizeof(REAL), currN);
     d2_omega_lambda_array = calloc(sizeof(REAL), currN);
     //calculate derivatives
-    int lambda_index = 0; // just for convenience in 
-printing
+    int lambda_index = 0; // just for convenience in printing
     for(lambda=lambdamin; lambda<lambdamax; lambda+=lambdastep){
       omega = zbrent(rotnum, r0+r10*EPS, r1-r10*EPS, EPS*r10);
       orbit_der[0] = initx;
