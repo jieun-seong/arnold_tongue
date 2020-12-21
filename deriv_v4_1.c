@@ -179,49 +179,52 @@ REAL zbrent(REAL (*func) (REAL), REAL x1, REAL x2, REAL tol){
 
 int main(int argc, char** argv){
   long int i;
-  long int N_t, N_der, N_step;
+  long int N_t, N_der_min, N_der_max, N_step;
   REAL lambdamin, lambdamax, lambdastep, lambda_critical;
   REAL **weightarray_der;
   REAL *tot_weight_der, *orbit_der, *d1_lambda_array, *d2_lambda_array, *d1_omega_array, *d2_omega_array, *d2_omega_lambda_array;
   REAL x, y_lambda, y_omega, d1_lambda, d2_lambda, d1_omega, d2_omega, dw, ddw, d_omega_lambda;
+  int lambda_index;
 
-  if(argc!=8){
-    printf("usage: %s N_tongue, N_deriv_max, N_deriv_stepsize, lambdamin, lambdamax, lambdastep, initx \n", argv[0]);
+  if(argc!=9){
+    printf("usage: %s N_tongue, N_der_min, N_deriv_max, N_deriv_stepsize, lambdamin, lambdamax, lambdastep, initx \n", argv[0]);
     printf("critical lambda = 0.15915494309189533576888376337251436203445964574... \n");
     abort();
   }
 
   sscanf(argv[1], "%ld", &N_t);
-  sscanf(argv[2], "%ld", &N_der);
-  sscanf(argv[3], "%ld", &N_step);
+  sscanf(argv[2], "%ld", &N_der_min);
+  sscanf(argv[3], "%ld", &N_der_max);
+  sscanf(argv[4], "%ld", &N_step);
 	
   #ifdef FLOAT
-    sscanf(argv[4], "%f", &lambdamin);
-    sscanf(argv[5], "%f", &lambdamax);
-    sscanf(argv[6], "%f", &lambdastep);
-    sscanf(argv[7], "%f", &initx);
+    sscanf(argv[5], "%f", &lambdamin);
+    sscanf(argv[6], "%f", &lambdamax);
+    sscanf(argv[7], "%f", &lambdastep);
+    sscanf(argv[8], "%f", &initx);
   #endif
   #ifdef DOUBLE
-    sscanf(argv[4], "%lf", &lambdamin);
-    sscanf(argv[5], "%lf", &lambdamax);
-    sscanf(argv[6], "%lf", &lambdastep);
-    sscanf(argv[7], "%lf", &initx);
+    sscanf(argv[5], "%lf", &lambdamin);
+    sscanf(argv[6], "%lf", &lambdamax);
+    sscanf(argv[7], "%lf", &lambdastep);
+    sscanf(argv[8], "%lf", &initx);
   #endif
   #ifdef LONG
-    sscanf(argv[4], "%Lf", &lambdamin);
-    sscanf(argv[5], "%Lf", &lambdamax);
-    sscanf(argv[6], "%Lf", &lambdastep);
-    sscanf(argv[7], "%Lf", &initx);
+    sscanf(argv[5], "%Lf", &lambdamin);
+    sscanf(argv[6], "%Lf", &lambdamax);
+    sscanf(argv[7], "%Lf", &lambdastep);
+    sscanf(argv[8], "%Lf", &initx);
   #endif
   #ifdef QUAD
-    lambdamin = strtoflt128(argv[4], NULL);
-    lambdamax = strtoflt128(argv[5], NULL);
-    lambdastep = strtoflt128(argv[6], NULL);
-    initx = strtoflt128(argv[7], NULL);
+    lambdamin = strtoflt128(argv[5], NULL);
+    lambdamax = strtoflt128(argv[6], NULL);
+    lambdastep = strtoflt128(argv[7], NULL);
+    initx = strtoflt128(argv[8], NULL);
   #endif
 	
   printf("# N_t %ld\n", N_t);
-  printf("# N_der_max %ld\n", N_der);
+  printf("# N_der_min %ld\n", N_der_min);
+  printf("# N_der_max %ld\n", N_der_max);
   printf("# N_der_step %ld\n", N_step);
   printf("# lambdamin "); PRINT(lambdamin); printf("%s \n", buf);
   printf("# lambdamax "); PRINT(lambdamax); printf("%s \n", buf);
@@ -254,7 +257,7 @@ int main(int argc, char** argv){
     tot_weight_t[m] = GOODSUM(weightarray_t[m], N);
   }
     
-  for(int currN=10; currN<N_der; currN+=N_step){
+  for(int currN=N_der_min; currN<N_der_max; currN+=N_step){
     weightarray_der = calloc(sizeof(REAL *), currN);
     tot_weight_der = calloc(sizeof(REAL), currN);
     orbit_der = calloc(sizeof(REAL), currN);
@@ -272,7 +275,7 @@ int main(int argc, char** argv){
     d2_omega_array = calloc(sizeof(REAL), currN);
     d2_omega_lambda_array = calloc(sizeof(REAL), currN);
     //calculate derivatives
-    int lambda_index = 0; // just for convenience in printing
+    lambda_index = 0; // just for convenience in printing
     for(lambda=lambdamin; lambda<lambdamax; lambda+=lambdastep){
       omega = zbrent(rotnum, r0+r10*EPS, r1-r10*EPS, EPS*r10);
       orbit_der[0] = initx;
