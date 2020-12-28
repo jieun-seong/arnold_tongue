@@ -300,8 +300,9 @@ int main(int argc, char** argv){
       d2_lambda = GOODPROD(d2_lambda_array, weightarray_der[m], N)/tot_weight_der[m];
       d2_omega = GOODPROD(d2_omega_array, weightarray_der[m], N)/tot_weight_der[m];
       d_omega_lambda = GOODPROD(d2_omega_lambda_array, weightarray_der[m], N)/tot_weight_der[m];
-      dw = -r1*d1_lambda/d1_omega;
+      //dw = -r1*d1_lambda/d1_omega;
       ddw = (d2_lambda-r2*d_omega_lambda*dw-d2_omega*dw)/d1_omega;
+      dw = -r1*d1_lambda/d1_omega;
       // print the result
       printf("%ld   ", N);
       printf("%d   ", lambda_index); lambda_index++;
