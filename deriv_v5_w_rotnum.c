@@ -307,7 +307,7 @@ int main(int argc, char** argv){
       printf("%d   ", lambda_index); lambda_index++;
       PRINT(omega); printf("%s ", buf);
       PRINT(lambda); printf("%s ", buf);
-      PRINT(ABS(lambda_critical-lambda)); printf("%s ", buf);
+      PRINT(lambda_critical-lambda); printf("%s ", buf);
       PRINT(ABS(rotnum_curr-target)); printf("%s ", buf);
       PRINT(d1_lambda); printf("%s ", buf);
       PRINT(d1_omega); printf("%s ", buf);
