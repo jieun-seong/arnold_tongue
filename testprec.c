@@ -30,9 +30,9 @@ int main(int argc, char** argv){
     long int i;
     REAL x;
     float d_value, p_value;
-    for (int i = 0; i < 100000; ++i){
-        d_value = (REAL)10.0 / (REAL)(i);
-        p_value = (REAL)0.01 * (REAL)(i) + (REAL)100.0;
+    for (int i = 0; i < 1000000; ++i){
+        d_value = (REAL)10.03568375298674502645 / (REAL)(i);
+        p_value = (REAL)0.010384015630856204856245 * (REAL)(i) + (REAL)100.0019348759081346502498;
     }
     PRINT(d_value); printf("%s ", buf);
     PRINT(p_value); printf("%s \n", buf);
