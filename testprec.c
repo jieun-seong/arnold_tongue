@@ -71,6 +71,7 @@ int main(int argc, char** argv){
 
   for(i=0; i<N; i++){
       x += x;
+      x /=1.761348765013846510984561;
   }
       // print the result
       //printf("%ld   ", N);
