@@ -9,11 +9,6 @@
 #endif
 #include <assert.h>
 
-long int m, m_t, N, N_t;
-REAL lambda, omega, initx, target, rN, rN_t;
-REAL r1, r0, r2, r2pi, r3, r5, r10, rhalf;
-REAL *orbit_t, *tot_weight_t;
-REAL **weightarray_t;
 char buf[60];
 
 void PRINT(REAL x){
@@ -31,51 +26,14 @@ void PRINT(REAL x){
 #endif
 }
 
-REAL weight(long int i){
-  REAL frac, dummy;
-  frac = ((REAL)i)/rN;
-  if((r0<i)&&(i<N)){
-    #ifdef BIRKHOFF
-      return r1;
-    #else // DSY
-      dummy = EXP(-r1/(frac*(r1-frac)));
-      return dummy;
-    #endif
-  }
-  return r0;
-}
-
 int main(int argc, char** argv){
-  long int i, N;
-  REAL x;
-
-  if(argc!=3){
-    printf("usage: %s N, x \n", argv[0]);
-    abort();
-  }
-
-  sscanf(argv[1], "%ld", &N);
-	
-  #ifdef FLOAT
-    sscanf(argv[2], "%f", &x);
-  #endif
-  #ifdef DOUBLE
-    sscanf(argv[2], "%lf", &x);
-  #endif
-  #ifdef LONG
-    sscanf(argv[2], "%Lf", &x);
-  #endif
-  #ifdef QUAD
-    x = strtoflt128(argv[2], NULL);
-  #endif
-
-  for(i=0; i<N; i++){
-      x += x;
-      x /=1.761348765013846510984561;
-  }
-      // print the result
-      //printf("%ld   ", N);
-      PRINT(x); printf("%s \n", buf);
-    
-  
+    long int i;
+    REAL x;
+    float d_value, p_value;
+    for (int i = 0; i < 100000; ++i){
+        d_value = (REAL)10.0 / (REAL)(i);
+        p_value = (REAL)0.01 * (REAL)(i) + (REAL)100.0;
+    }
+    PRINT(d_value); printf("%s ", buf);
+    PRINT(p_value); printf("%s \n", buf);
 }
