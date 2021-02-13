@@ -17,78 +17,78 @@ REAL **weightarray_t;
 char buf[60];
 
 void PRINT(REAL x){
-#ifdef FLOAT
-  printf(" %f ", x);
-#endif
-#ifdef DOUBLE
-  printf(" %20.15f ", (double)x);
-#endif
-#ifdef LONG
-  printf(" Lf ", (long double)x);
-#endif
-#ifdef QUAD
-  quadmath_snprintf(buf, sizeof buf, "%+-#*.33Qe", 33, x);
-#endif
+	#ifdef FLOAT
+		printf(" %f ", x);
+	#endif
+	#ifdef DOUBLE
+		printf(" %20.15f ", (double)x);
+	#endif
+	#ifdef LONG
+		printf(" Lf ", (long double)x);
+	#endif
+	#ifdef QUAD
+		quadmath_snprintf(buf, sizeof buf, "%+-#*.33Qe", 33, x);
+	#endif
 }
 
 void PRINTTOCHECK(char *s, REAL x){
-#ifdef FLOAT
-  printf("\n"); printf("%s", s); printf(" = ");
-  printf(" %f ", x);
-  printf("\n\n");
-#endif
-#ifdef DOUBLE
-  printf("\n"); printf("%s", s); printf(" = ");
-  printf(" %20.15f ", (double)x);
-  printf("\n\n");
-#endif
-#ifdef LONG
-  printf("\n"); printf("%s", s); printf(" = ");
-  printf(" Lf ", (long double)x);
-  printf("\n\n");
-#endif
-#ifdef QUAD
-  printf("\n"); printf("%s", s); printf(" = ");
-  quadmath_snprintf(buf, sizeof buf, "%+-#*.33Qe", 33, x);
-  printf("\n\n");
-#endif
+	#ifdef FLOAT
+		printf("\n"); printf("%s", s); printf(" = ");
+		printf(" %f ", x);
+		printf("\n\n");
+	#endif
+	#ifdef DOUBLE
+		printf("\n"); printf("%s", s); printf(" = ");
+		printf(" %20.15f ", (double)x);
+		printf("\n\n");
+	#endif
+	#ifdef LONG
+		printf("\n"); printf("%s", s); printf(" = ");
+		printf(" Lf ", (long double)x);
+		printf("\n\n");
+	#endif
+	#ifdef QUAD
+		printf("\n"); printf("%s", s); printf(" = ");
+		quadmath_snprintf(buf, sizeof buf, "%+-#*.33Qe", 33, x);
+		printf("\n\n");
+	#endif
 }
 
 REAL step(REAL x){
-  REAL dummy;
-  dummy = lambda*SIN(r2pi*x)+omega;
-  return dummy;
+	REAL dummy;
+	dummy = lambda*SIN(r2pi*x)+omega;
+	return dummy;
 }
 
 REAL weight(long int i){
-  REAL frac, dummy;
-  frac = ((REAL)i)/rN;
-  if((r0<i)&&(i<N)){
-    #ifdef BIRKHOFF
-      return r1;
-    #else // DSY
-      dummy = EXP(-r1/(frac*(r1-frac)));
-      return dummy;
-    #endif
-  }
-  return r0;
+	REAL frac, dummy;
+	frac = ((REAL)i)/rN;
+	if((r0<i)&&(i<N)){
+		#ifdef BIRKHOFF
+			return r1;
+		#else // DSY
+			dummy = EXP(-r1/(frac*(r1-frac)));
+			return dummy;
+		#endif
+	}
+	return r0;
 }
 
 REAL map(REAL x){
-  REAL dummy;
-  dummy = (REAL)(x+lambda*SIN(r2pi*x)+omega);
-  dummy = dummy-(REAL)(floor(dummy));
-  return dummy;
+	REAL dummy;
+	dummy = (REAL)(x+lambda*SIN(r2pi*x)+omega);
+	dummy = dummy-(REAL)(floor(dummy));
+	return dummy;
 }
 
 REAL rotnum(REAL omegahere){
-  REAL x = initx;
-  omega = omegahere;
-  for(long int i=0; i<N_t; i++){
-    orbit_t[i] = step(x);
-    x = map(x);
-  }
-  return (GOODPROD(orbit_t, weightarray_t[m_t], N_t)/tot_weight_t[m_t]-target);
+	REAL x = initx;
+	omega = omegahere;
+	for(long int i=0; i<N_t; i++){
+		orbit_t[i] = step(x);
+		x = map(x);
+	}
+	return (GOODPROD(orbit_t, weightarray_t[m_t], N_t)/tot_weight_t[m_t]-target);
 }
 
 REAL dfdx(REAL x) {return (REAL) (r1+r2pi*lambda*COS(r2pi*x));}
@@ -129,39 +129,39 @@ void nerror(char *s){
 }
 
 REAL zbrent(REAL (*func) (REAL), REAL x1, REAL x2, REAL tol){
-  int iter;
-  REAL a=x1,b=x2,c,d,e,min1,min2,fa=(*func)(a),fb=(*func)(b),fc,p,q,r,s,tol1,xm;
-  void nerror();
-  if (fb*fa>r0) nerror("Root must be bracketed in ZBRENT\n");
-  fc=fb;
-  for(iter=1;iter<=ITMAX;iter++){
-    if(fb*fc>r0){c=a;fc=fa;e=d=b-a;}
-    if(ABS(fc)<ABS(fb)){a=b;b=c;c=a;fa=fb;fb=fc;fc=fa;}
-    tol1=r2*EPS*ABS(b)+(tol*rhalf);xm=(c-b)*rhalf;
-    if(ABS(xm)<=tol1||fb==r0){
-      #ifdef VERBOSE
-        printf("\neps = ");
-        PRINT(ABS(xm));
-        printf("\n");
-      #endif
-      return b;
-    }
-    if(ABS(e)>=tol1&&ABS(fa)>ABS(fb)){s=fb/fa;
-      if(a==c){p=r2*xm*s;q=r1-s;}
-      else{q=fa/fc;r=fb/fc;p=s*(r2*xm*q*(q-r)-(b-a)*(r-r1));q=(q-r1)*(r-r1)*(s-r1);}
-      if(p>r0) q=-q;
-      p=ABS(p);min1=r3*xm*q-ABS(tol1*q);min2=ABS(e*q);
-      if((r2*p)<(min1<min2?min1:min2)){e=d;d=p/q;}
-      else{d=xm;e=d;}
-    }
-    else{d=xm;e=d;}
-    a=b;fa=fb;
-    if(ABS(d)>tol1) b=b+d;
-    else b=b+(xm>r0?ABS(tol1):-ABS(tol1));
-    fb=(*func)(b);
-  }
-  nerror("Maximum number of iterations exceeded in ZBRENT");
-  return r0;
+	int iter;
+	REAL a=x1,b=x2,c,d,e,min1,min2,fa=(*func)(a),fb=(*func)(b),fc,p,q,r,s,tol1,xm;
+	void nerror();
+	if (fb*fa>r0) nerror("Root must be bracketed in ZBRENT\n");
+	fc=fb;
+	for(iter=1;iter<=ITMAX;iter++){
+		if(fb*fc>r0){c=a;fc=fa;e=d=b-a;}
+		if(ABS(fc)<ABS(fb)){a=b;b=c;c=a;fa=fb;fb=fc;fc=fa;}
+		tol1=r2*EPS*ABS(b)+(tol*rhalf);xm=(c-b)*rhalf;
+		if(ABS(xm)<=tol1||fb==r0){
+			#ifdef VERBOSE
+				printf("\neps = ");
+				PRINT(ABS(xm));
+				printf("\n");
+			#endif
+			return b;
+		}
+		if(ABS(e)>=tol1&&ABS(fa)>ABS(fb)){s=fb/fa;
+			if(a==c){p=r2*xm*s;q=r1-s;}
+			else{q=fa/fc;r=fb/fc;p=s*(r2*xm*q*(q-r)-(b-a)*(r-r1));q=(q-r1)*(r-r1)*(s-r1);}
+			if(p>r0) q=-q;
+			p=ABS(p);min1=r3*xm*q-ABS(tol1*q);min2=ABS(e*q);
+			if((r2*p)<(min1<min2?min1:min2)){e=d;d=p/q;}
+			else{d=xm;e=d;}
+		}
+		else{d=xm;e=d;}
+		a=b;fa=fb;
+		if(ABS(d)>tol1) b=b+d;
+		else b=b+(xm>r0?ABS(tol1):-ABS(tol1));
+		fb=(*func)(b);
+	}
+	nerror("Maximum number of iterations exceeded in ZBRENT");
+	return r0;
 }
 
 #undef ITMAX
@@ -217,111 +217,112 @@ int main(int argc, char** argv){
 	initx = strtoflt128(argv[8], NULL);
 	#endif
 	
-  printf("# N_t %ld\n", N_t);
-  printf("# NMIN_deriv %ld\n", NMIN_der);
-  printf("# NMAX_deriv %ld\n", NMAX_der);
-  printf("# NSTEP_deriv %ld\n", NSTEP_der);
-  printf("# lambdamin "); PRINT(lambdamin); printf("%s \n", buf);
-  printf("# lambdamax "); PRINT(lambdamax); printf("%s \n", buf);
-  printf("# lambdastep "); PRINT(lambdastep); printf("%s \n", buf);
-  printf("# initx "); PRINT(initx); printf("%s \n\n", buf);
+	printf("# N_t %ld\n", N_t);
+	printf("# NMIN_deriv %ld\n", NMIN_der);
+	printf("# NMAX_deriv %ld\n", NMAX_der);
+	printf("# NSTEP_deriv %ld\n", NSTEP_der);
+	printf("# lambdamin "); PRINT(lambdamin); printf("%s \n", buf);
+	printf("# lambdamax "); PRINT(lambdamax); printf("%s \n", buf);
+	printf("# lambdastep "); PRINT(lambdastep); printf("%s \n", buf);
+	printf("# initx "); PRINT(initx); printf("%s \n\n", buf);
 
-  NMIN_t = N_t;
-  NMAX_t = N_t;
+	NMIN_t = N_t;
+	NMAX_t = N_t;
     
-  r0 = (REAL)0; 
-  r1 = (REAL)1;
-  r2 = (REAL)2;
-  r3 = (REAL)3;
-  r5 = (REAL)5;
-  r10 = (REAL)10;
-  r2pi = r2*PI;
-  rhalf = r1/r2;
+	r0 = (REAL)0; 
+	r1 = (REAL)1;
+	r2 = (REAL)2;
+	r3 = (REAL)3;
+	r5 = (REAL)5;
+	r10 = (REAL)10;
+	r2pi = r2*PI;
+	rhalf = r1/r2;
 
-  target = (REAL)(SQRT(r5)-r1)/r2;
-  lambda_critical = (REAL)(r1/r2pi);
+	target = (REAL)(SQRT(r5)-r1)/r2;
+	lambda_critical = (REAL)(r1/r2pi);
   
-  printf("#1:N  #2:lambda_index  #3:omega  #4:lambda  #5:|lambda_critical-lambda| #6:|rotnum_curr-target|  #7:d1_lambda  #8:d1_omega  #9:d2_lambda  #10:d2_omega  #11:d_omega_lambda  #12:dw  #13:ddw \n\n");
+	printf("#1:N  #2:lambda_index  #3:omega  #4:lambda  #5:|lambda_critical-lambda| #6:|rotnum_curr-target|  #7:d1_lambda  #8:d1_omega  #9:d2_lambda  #10:d2_omega  #11:d_omega_lambda  #12:dw  #13:ddw \n\n");
     
-  // construct the weight array for the tongue
-  weightarray_t = calloc(sizeof(REAL*), NMAX_t-NMIN_t+1);
-  tot_weight_t = calloc(sizeof(REAL), NMAX_t-NMIN_t+1);
-  orbit_t = calloc(sizeof(REAL), NMAX_t);
-  for(m_t=0; m_t<NMAX_t-NMIN_t+1; m_t++){
-    N_t = m_t+NMIN_t;
-    rN_t = (REAL) N_t;
-    weightarray_t[m_t] = calloc(sizeof(REAL), N_t);
-    N = N_t;
-    rN = rN_t;
-    for(i=0; i<N_t; i++){
-      weightarray_t[m_t][i] = weight(i);
-    }
-    tot_weight_t[m_t] = GOODSUM(weightarray_t[m_t], N_t);
-  }
-  m_t = 0; // since for now I only look at the case NMAX_t = NMIN_t
-  // need to loop through m_t if NMAX_t != NMIN_t
-  // `` for derivatives
-  weightarray_der = calloc(sizeof(REAL *), NMAX_der-NMIN_der+1);
-  tot_weight_der = calloc(sizeof(REAL), NMAX_der-NMIN_der+1);
-  //orbit_der = calloc(sizeof(REAL), NMAX_der);
-  for(m=0; m<NMAX_der-NMIN_der+1; m+=NSTEP_der){
-    N = m+NMIN_der;
-    rN = (REAL) N;
-    weightarray_der[m] = calloc(sizeof(REAL), N);
-    orbit_der = calloc(sizeof(REAL), N);
-    for(i=0; i<N; i++){
-      weightarray_der[m][i] = weight(i);
-    }
-    tot_weight_der[m] = GOODSUM(weightarray_der[m], N);
-    d1_lambda_array = calloc(sizeof(REAL), N);
-    d1_omega_array = calloc(sizeof(REAL), N);
-    d2_lambda_array = calloc(sizeof(REAL), N);
-    d2_omega_array = calloc(sizeof(REAL), N);
-    d2_omega_lambda_array = calloc(sizeof(REAL), N);
-    //calculate derivatives
-    lambda_index = 0; // for convenience in printing
-    for(lambda=lambdamin; lambda<lambdamax; lambda+=lambdastep){
-      omega = zbrent(rotnum, r0+r10*EPS, r1-r10*EPS, EPS*r10);
-      orbit_der[0] = initx;
-      d1_lambda_array[0] = r0;
-      d2_lambda_array[0] = r0;
-      d1_omega_array[0] = r0;
-      d2_omega_array[0] = r0;
-      d2_omega_lambda_array[0] = r0;
-      for(i=0; i<N-1; i++){
-        x = orbit_der[i];
-        y_lambda = d1_lambda_array[i];
-        y_omega = d1_omega_array[i];
-        orbit_der[i+1] = map(x);
-        d1_lambda_array[i+1] = dfdl(x)+dfdx(x)*y_lambda;
-        d1_omega_array[i+1] = dfdw(x)+dfdx(x)*y_omega;
-        d2_lambda_array[i+1] = ddfdll(x)+ddfdldx(x)*y_lambda*r2+ddfdxx(x)*y_lambda*y_lambda+dfdx(x)*d2_lambda_array[i];
-        d2_omega_array[i+1] = ddfdww(x)+ddfdwdx(x)*y_omega*r2+ddfdxx(x)*y_omega*y_omega+dfdx(x)*d2_omega_array[i];
-        d2_omega_lambda_array[i+1] = ddfdwdl(x)+ddfdldx(x)*y_omega+(ddfdwdx(x)+ddfdxx(x)*y_omega)*y_lambda+dfdx(x)*d2_omega_lambda_array[i];
-      }
-      rotnum_curr = GOODPROD(orbit_der, weightarray_der[m], N)/tot_weight_der[m];
-      d1_lambda = GOODPROD(d1_lambda_array, weightarray_der[m], N)/tot_weight_der[m];
-      d1_omega = GOODPROD(d1_omega_array, weightarray_der[m], N)/tot_weight_der[m];
-      d2_lambda = GOODPROD(d2_lambda_array, weightarray_der[m], N)/tot_weight_der[m];
-      d2_omega = GOODPROD(d2_omega_array, weightarray_der[m], N)/tot_weight_der[m];
-      d_omega_lambda = GOODPROD(d2_omega_lambda_array, weightarray_der[m], N)/tot_weight_der[m];
-      //dw = -r1*d1_lambda/d1_omega;
-      ddw = (d2_lambda-r2*d_omega_lambda*dw-d2_omega*dw)/d1_omega;
-      dw = -r1*d1_lambda/d1_omega;
-      // print the result
-      printf("%ld   ", N);
-      printf("%d   ", lambda_index); lambda_index++;
-      PRINT(omega); printf("%s ", buf);
-      PRINT(lambda); printf("%s ", buf);
-      PRINT(lambda_critical-lambda); printf("%s ", buf);
-      PRINT(ABS(rotnum_curr-target)); printf("%s ", buf);
-      PRINT(d1_lambda); printf("%s ", buf);
-      PRINT(d1_omega); printf("%s ", buf);
-      PRINT(d2_lambda); printf("%s ", buf);
-      PRINT(d2_omega); printf("%s ", buf);
-      PRINT(d_omega_lambda); printf("%s ", buf);
-      PRINT(dw); printf("%s ", buf);
-      PRINT(ddw); printf("%s \n", buf);
-    }
-  }
+	// construct the weight array for the tongue
+	weightarray_t = calloc(sizeof(REAL*), NMAX_t-NMIN_t+1);
+	tot_weight_t = calloc(sizeof(REAL), NMAX_t-NMIN_t+1);
+	orbit_t = calloc(sizeof(REAL), NMAX_t);
+	for(m_t=0; m_t<NMAX_t-NMIN_t+1; m_t++){
+		N_t = m_t+NMIN_t;
+		rN_t = (REAL) N_t;
+		weightarray_t[m_t] = calloc(sizeof(REAL), N_t);
+		N = N_t;
+		rN = rN_t;
+		for(i=0; i<N_t; i++){
+			weightarray_t[m_t][i] = weight(i);
+		}
+		tot_weight_t[m_t] = GOODSUM(weightarray_t[m_t], N_t);
+	}
+
+	m_t = 0; // since for now I only look at the case NMAX_t = NMIN_t
+	// need to loop through m_t if NMAX_t != NMIN_t
+	// `` for derivatives
+	weightarray_der = calloc(sizeof(REAL *), NMAX_der-NMIN_der+1);
+	tot_weight_der = calloc(sizeof(REAL), NMAX_der-NMIN_der+1);
+	//orbit_der = calloc(sizeof(REAL), NMAX_der);
+	for(m=0; m<NMAX_der-NMIN_der+1; m+=NSTEP_der){
+		N = m+NMIN_der;
+		rN = (REAL) N;
+		weightarray_der[m] = calloc(sizeof(REAL), N);
+		orbit_der = calloc(sizeof(REAL), N);
+		for(i=0; i<N; i++){
+			weightarray_der[m][i] = weight(i);
+		}
+		tot_weight_der[m] = GOODSUM(weightarray_der[m], N);
+		d1_lambda_array = calloc(sizeof(REAL), N);
+		d1_omega_array = calloc(sizeof(REAL), N);
+		d2_lambda_array = calloc(sizeof(REAL), N);
+		d2_omega_array = calloc(sizeof(REAL), N);
+		d2_omega_lambda_array = calloc(sizeof(REAL), N);
+		//calculate derivatives
+		lambda_index = 0; // for convenience in printing
+		for(lambda=lambdamin; lambda<lambdamax; lambda+=lambdastep){
+			omega = zbrent(rotnum, r0+r10*EPS, r1-r10*EPS, EPS*r10);
+			orbit_der[0] = initx;
+			d1_lambda_array[0] = r0;
+			d2_lambda_array[0] = r0;
+			d1_omega_array[0] = r0;
+			d2_omega_array[0] = r0;
+			d2_omega_lambda_array[0] = r0;
+			for(i=0; i<N-1; i++){
+				x = orbit_der[i];
+				y_lambda = d1_lambda_array[i];
+				y_omega = d1_omega_array[i];
+				orbit_der[i+1] = map(x);
+				d1_lambda_array[i+1] = dfdl(x)+dfdx(x)*y_lambda;
+				d1_omega_array[i+1] = dfdw(x)+dfdx(x)*y_omega;
+				d2_lambda_array[i+1] = ddfdll(x)+ddfdldx(x)*y_lambda*r2+ddfdxx(x)*y_lambda*y_lambda+dfdx(x)*d2_lambda_array[i];
+				d2_omega_array[i+1] = ddfdww(x)+ddfdwdx(x)*y_omega*r2+ddfdxx(x)*y_omega*y_omega+dfdx(x)*d2_omega_array[i];
+				d2_omega_lambda_array[i+1] = ddfdwdl(x)+ddfdldx(x)*y_omega+(ddfdwdx(x)+ddfdxx(x)*y_omega)*y_lambda+dfdx(x)*d2_omega_lambda_array[i];
+			}
+			rotnum_curr = GOODPROD(orbit_der, weightarray_der[m], N)/tot_weight_der[m];
+			d1_lambda = GOODPROD(d1_lambda_array, weightarray_der[m], N)/tot_weight_der[m];
+			d1_omega = GOODPROD(d1_omega_array, weightarray_der[m], N)/tot_weight_der[m];
+			d2_lambda = GOODPROD(d2_lambda_array, weightarray_der[m], N)/tot_weight_der[m];
+			d2_omega = GOODPROD(d2_omega_array, weightarray_der[m], N)/tot_weight_der[m];
+			d_omega_lambda = GOODPROD(d2_omega_lambda_array, weightarray_der[m], N)/tot_weight_der[m];
+			//dw = -r1*d1_lambda/d1_omega;
+			ddw = (d2_lambda-r2*d_omega_lambda*dw-d2_omega*dw)/d1_omega;
+			dw = -r1*d1_lambda/d1_omega;
+
+			printf("%ld   ", N);
+			printf("%d   ", lambda_index); lambda_index++;
+			PRINT(omega); printf("%s ", buf);
+			PRINT(lambda); printf("%s ", buf);
+			PRINT(lambda_critical-lambda); printf("%s ", buf);
+			PRINT(ABS(rotnum_curr-target)); printf("%s ", buf);
+			PRINT(d1_lambda); printf("%s ", buf);
+			PRINT(d1_omega); printf("%s ", buf);
+			PRINT(d2_lambda); printf("%s ", buf);
+			PRINT(d2_omega); printf("%s ", buf);
+			PRINT(d_omega_lambda); printf("%s ", buf);
+			PRINT(dw); printf("%s ", buf);
+			PRINT(ddw); printf("%s \n", buf);
+		}
+	}
 }
